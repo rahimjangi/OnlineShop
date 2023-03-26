@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Server.Data;
+using OnlineShop.Server.Services.ProductService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

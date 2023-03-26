@@ -1,42 +1,48 @@
 ﻿
-@inject HttpClient httpClient
-<h3>ProductList</h3>
-<div class="container">
+@inject IProductService productService
+
+@if (productService.Products ==null || productService.Products.Count == 0)
+{
+    <span>Loading Products...</span>
+}
+else
+{
+    <h3>Product List</h3>
+    <div class="container">
 
 
-    <ul class="list-unstyled">
-        @foreach (Product product in Products)
-        {
-            <li class="media my-3">
-                <div class="media-img-wrapper mr-2">
-                    <a href="#">
-                        <img src="@product.ImageUrl" class="media-img">
-                    </a>
-                </div>
-                <div class="media-body">
-                    <a href="#">
-                        <h4 class="mb-0">@product.Title</h4>
-                    </a>
-                    <p>@product.Description</p>
-                    <h5 class="price">$@product.Price.ToString("00.00")</h5>
-                </div>
-            </li>
-        }
-    </ul>
-</div>
+        <ul class="list-unstyled">
+            @foreach (Product product in productService.Products)
+            {
+                <li class="media my-3">
+                    <div class="media-img-wrapper mr-2">
+                        <a href="product/@product.Id">
+                            <img src="@product.ImageUrl" class="media-img">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="product/@product.Id">
+                            <h4 class="mb-0">@product.Title</h4>
+                        </a>
+                        <p>@product.Description</p>
+                        <h5 class="price">$@product.Price.ToString("00.00")</h5>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+
+
 
 
 @code {
-    public List<Product> Products = new List<Product>();
 
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await httpClient.GetFromJsonAsync<List<Product>>("api/product");
-        if (result != null)
-        {
-            Products = result;
-        }
+        await productService.GetProducts();
     }
 
 
