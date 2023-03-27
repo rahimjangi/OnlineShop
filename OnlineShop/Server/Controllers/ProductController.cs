@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OnlineShop.Server.Services.ProductService;
 using OnlineShop.Shared;
 
 namespace OnlineShop.Server.Controllers;
@@ -23,6 +22,13 @@ public class ProductController : ControllerBase
         return Ok(response);
     }
 
+
+    [HttpGet("category/{categoryUri}")]
+    public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProducts(string categoryUri)
+    {
+        var response = await _productService.GetProductsByCategoryAsync(categoryUri);
+        return Ok(response);
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int id)
