@@ -15,7 +15,11 @@ public class ProductService : IProductService
 
     public async Task<ServiceResponse<Product>> GetProductAsync(int productId)
     {
-        var product = await _context.Products.FindAsync(productId);
+        var product = await _context.Products
+            .Include(p => p.Varians)
+            .ThenInclude(p => p.ProductType)
+            .FirstOrDefaultAsync(p => p.Id == productId);
+
         var response = new ServiceResponse<Product>();
         if (product != null)
         {
@@ -33,7 +37,9 @@ public class ProductService : IProductService
     {
         var response = new ServiceResponse<List<Product>>()
         {
-            Data = await _context.Products.ToListAsync(),
+            Data = await _context.Products
+                .Include(p => p.Varians)
+                .ToListAsync(),
             Success = true,
             Message = "OK"
         };
@@ -44,6 +50,7 @@ public class ProductService : IProductService
     {
         var result = await _context.Products
             .Where(x => x.Category != null && x.Category.Url.ToLower().Equals(categoryUri.ToLower()))
+            .Include(p => p.Varians)
             .ToListAsync();
         var response = new ServiceResponse<List<Product>>()
         {
@@ -51,5 +58,57 @@ public class ProductService : IProductService
             Data = result
         };
         return response;
+    }
+
+    public async Task<ServiceResponse<List<string>>> GetProductSearchSuggestions(string searchText)
+    {
+        var products = await FindProductBySearchText(searchText);
+        List<string> suggestions = new List<string>();
+
+        foreach (var product in products)
+        {
+            if (product.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            {
+                suggestions.Add(product.Title);
+            }
+            if (product.Description != null)
+            {
+                var punctuation = product.Description.Where(char.IsPunctuation)
+                    .Distinct()
+                    .ToArray();
+                var words = product.Description.Split()
+                    .Select(x => x.Trim(punctuation));
+                foreach (var word in words)
+                {
+                    if (word.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                        && !suggestions.Contains(word))
+                    {
+                        suggestions.Add(word);
+                    }
+                }
+            }
+        }
+        var result = new ServiceResponse<List<string>>()
+        {
+            Data = suggestions
+        };
+        return result;
+    }
+
+    public async Task<ServiceResponse<List<Product>>> SearchProducts(string searchText)
+    {
+        var response = new ServiceResponse<List<Product>>()
+        {
+            Data = await FindProductBySearchText(searchText)
+        };
+        return response;
+    }
+
+    private async Task<List<Product>> FindProductBySearchText(string searchText)
+    {
+        return await _context.Products
+                    .Where(p => p.Title.ToLower().Contains(searchText) || p.Description.ToLower().Contains(searchText))
+                    .Include(p => p.Varians)
+                    .ToListAsync();
     }
 }

@@ -10,6 +10,7 @@ public class ProductService : IProductService
     public event Action? ProductChanged;
 
     public List<Product> Products { get; set; } = new List<Product>();
+    public string Message { get; set; } = "Loading products...";
 
     public ProductService(HttpClient http)
     {
@@ -47,5 +48,24 @@ public class ProductService : IProductService
         return productResult;
     }
 
+    public async Task SearchProducts(string searchText)
+    {
+        var result = await _http
+            .GetFromJsonAsync<ServiceResponse<List<Product>>>($"api/product/search/{searchText}");
+        if (result != null && result.Data != null) { Products = result.Data; }
+        if (Products.Count == 0) Message = "No product found!";
+        ProductChanged?.Invoke();
+    }
 
+    public async Task<List<string>> GetProductSearchSuggestions(string searchText)
+    {
+        var returnStrings = new List<string>();
+        var result = await _http
+            .GetFromJsonAsync<ServiceResponse<List<string>>>($"api/product/searchsuggestions/{searchText}");
+        if (result != null && result.Data != null)
+        {
+            returnStrings.AddRange(result.Data);
+        }
+        return returnStrings;
+    }
 }

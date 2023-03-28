@@ -13,7 +13,28 @@
         <div class="media-body">
             <h2 class="mb-0">@Product.Title</h2>
             <p>@Product.Description</p>
-            <h4 class="price">$@Product.Price</h4>
+            @if (Product.Varians!=null& Product.Varians?.Count>1)
+            {
+                <div class="mb-3">
+                    @if (Product.Varians!=null)
+                    {
+                        <select class="form-select" @bind="currentTypeId">
+                            @foreach (var variant in Product.Varians)
+                            {
+                                <option value="@variant.ProductTypeId">@variant?.ProductType?.Name</option>
+                            }
+                        </select>
+                    }
+                </div>
+            }
+            @if (GetSelectedVariant()!=null){
+                @if (GetSelectedVariant()?.OriginalPrice>GetSelectedVariant()?.Price)
+                {
+                    <h6 class="text-muted original-price">$@GetSelectedVariant()?.OriginalPrice</h6>
+                }
+                <h4 class="price">$@GetSelectedVariant()?.Price</h4>
+            }
+
         </div>
     </div>
 }
@@ -29,6 +50,8 @@
 
     private string message = string.Empty;
 
+    private int currentTypeId = 1;
+
 
 
     protected override  async Task OnParametersSetAsync()
@@ -38,11 +61,41 @@
         if (result.Success)
         {
             Product = result.Data;
+            if (Product!=null && Product.Varians.Count > 0)
+            {
+                currentTypeId = Product.Varians[0].ProductTypeId;
+            }
         }
         else
         {
             message = result.Message;
         }
+
+
+    }
+        private ProductVariant? GetSelectedVariant()
+        {
+            var variant = Product?.Varians.FirstOrDefault(p => p.ProductTypeId == currentTypeId);
+            return variant;
+        }
+
+    private string GetPriceText(Product product)
+    {
+        var variants = product.Varians;
+        if (variants.Count == 0)
+        {
+            return string.Empty;
+        }
+        else if (variants.Count == 1)
+        {
+            return $"{variants[0].Price}";
+        }
+        else
+        {
+            decimal minPrice = variants.Min(v => v.Price);
+            return $"Starting at {minPrice}";
+        }
+
     }
 
     

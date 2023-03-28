@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop.Server.Data;
 
@@ -10,9 +11,10 @@ using OnlineShop.Server.Data;
 namespace OnlineShop.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230327204119_EFChanged")]
+    partial class EFChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -211,58 +213,6 @@ namespace OnlineShop.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Default"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Paperback"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "E-Book"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Audiobook"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Stream"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Blu-ray"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "VHS"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "PC"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "PlayStation"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Xbox"
-                        });
                 });
 
             modelBuilder.Entity("OnlineShop.Shared.ProductVariant", b =>
@@ -284,127 +234,6 @@ namespace OnlineShop.Server.Migrations
                     b.HasIndex("ProductTypeId");
 
                     b.ToTable("ProductVariants");
-
-                    b.HasData(
-                        new
-                        {
-                            ProductId = 1,
-                            ProductTypeId = 2,
-                            OriginalPrice = 19.99m,
-                            Price = 9.99m
-                        },
-                        new
-                        {
-                            ProductId = 1,
-                            ProductTypeId = 3,
-                            OriginalPrice = 0m,
-                            Price = 7.99m
-                        },
-                        new
-                        {
-                            ProductId = 1,
-                            ProductTypeId = 4,
-                            OriginalPrice = 29.99m,
-                            Price = 19.99m
-                        },
-                        new
-                        {
-                            ProductId = 2,
-                            ProductTypeId = 2,
-                            OriginalPrice = 14.99m,
-                            Price = 7.99m
-                        },
-                        new
-                        {
-                            ProductId = 3,
-                            ProductTypeId = 2,
-                            OriginalPrice = 0m,
-                            Price = 6.99m
-                        },
-                        new
-                        {
-                            ProductId = 4,
-                            ProductTypeId = 5,
-                            OriginalPrice = 0m,
-                            Price = 3.99m
-                        },
-                        new
-                        {
-                            ProductId = 4,
-                            ProductTypeId = 6,
-                            OriginalPrice = 0m,
-                            Price = 9.99m
-                        },
-                        new
-                        {
-                            ProductId = 4,
-                            ProductTypeId = 7,
-                            OriginalPrice = 0m,
-                            Price = 19.99m
-                        },
-                        new
-                        {
-                            ProductId = 5,
-                            ProductTypeId = 5,
-                            OriginalPrice = 0m,
-                            Price = 3.99m
-                        },
-                        new
-                        {
-                            ProductId = 6,
-                            ProductTypeId = 5,
-                            OriginalPrice = 0m,
-                            Price = 2.99m
-                        },
-                        new
-                        {
-                            ProductId = 7,
-                            ProductTypeId = 8,
-                            OriginalPrice = 29.99m,
-                            Price = 19.99m
-                        },
-                        new
-                        {
-                            ProductId = 7,
-                            ProductTypeId = 9,
-                            OriginalPrice = 0m,
-                            Price = 69.99m
-                        },
-                        new
-                        {
-                            ProductId = 7,
-                            ProductTypeId = 10,
-                            OriginalPrice = 59.99m,
-                            Price = 49.99m
-                        },
-                        new
-                        {
-                            ProductId = 8,
-                            ProductTypeId = 8,
-                            OriginalPrice = 24.99m,
-                            Price = 9.99m
-                        },
-                        new
-                        {
-                            ProductId = 9,
-                            ProductTypeId = 8,
-                            OriginalPrice = 0m,
-                            Price = 14.99m
-                        },
-                        new
-                        {
-                            ProductId = 10,
-                            ProductTypeId = 1,
-                            OriginalPrice = 299m,
-                            Price = 159.99m
-                        },
-                        new
-                        {
-                            ProductId = 11,
-                            ProductTypeId = 1,
-                            OriginalPrice = 399m,
-                            Price = 79.99m
-                        });
                 });
 
             modelBuilder.Entity("OnlineShop.Shared.Product", b =>
