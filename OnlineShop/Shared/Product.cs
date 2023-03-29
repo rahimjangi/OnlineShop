@@ -13,6 +13,6 @@ public class Product
     public Category? Category { get; set; }
     [ForeignKey("CategoryId")]
     public int CategoryId { get; set; }
-    public bool Featured { get; set; }
+    public bool Featured { get; set; } = false;
     public List<ProductVariant> Varians { get; set; } = new List<ProductVariant>();
 }
