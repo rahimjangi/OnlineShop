@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Server.Data;
 using OnlineShop.Shared;
+using OnlineShop.Shared.Dtos;
 
 namespace OnlineShop.Server.Services.ProductService;
 
@@ -11,6 +12,19 @@ public class ProductService : IProductService
     public ProductService(DataContext _context)
     {
         this._context = _context;
+    }
+
+    public async Task<ServiceResponse<List<Product>>> GetFeaturedProducts()
+    {
+        var response = new ServiceResponse<List<Product>>()
+        {
+            Data = await _context.Products
+            .Where(p => p.Featured)
+            .Include(p => p.Varians)
+            .ToListAsync()
+        };
+
+        return response;
     }
 
     public async Task<ServiceResponse<Product>> GetProductAsync(int productId)
@@ -95,11 +109,25 @@ public class ProductService : IProductService
         return result;
     }
 
-    public async Task<ServiceResponse<List<Product>>> SearchProducts(string searchText)
+    public async Task<ServiceResponse<ProductSearchResult>> SearchProducts(string searchText, int page)
     {
-        var response = new ServiceResponse<List<Product>>()
+        var pageResults = 2f;
+        var pageCount = Math.Ceiling((await FindProductBySearchText(searchText)).Count / pageResults);
+        var products = await _context.Products
+                    .Where(p => p.Title.ToLower().Contains(searchText) || p.Description.ToLower().Contains(searchText))
+                    .Include(p => p.Varians)
+                    .Skip((page - 1) * Convert.ToInt32(pageResults))
+                    .Take(Convert.ToInt32(pageResults))
+                    .ToListAsync();
+
+        var response = new ServiceResponse<ProductSearchResult>()
         {
-            Data = await FindProductBySearchText(searchText)
+            Data = new ProductSearchResult
+            {
+                Products = products,
+                Pages = Convert.ToInt32(pageResults),
+                CurrentPage = page
+            }
         };
         return response;
     }

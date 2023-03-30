@@ -2,6 +2,7 @@ global using OnlineShop.Server.Services.CategoryService;
 global using OnlineShop.Server.Services.ProductService;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Server.Data;
+using OnlineShop.Server.Services.CartService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var app = builder.Build();
 

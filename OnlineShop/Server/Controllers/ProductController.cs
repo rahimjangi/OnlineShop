@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Shared;
+using OnlineShop.Shared.Dtos;
 
 namespace OnlineShop.Server.Controllers;
 
@@ -31,10 +32,10 @@ public class ProductController : ControllerBase
     }
 
 
-    [HttpGet("search/{searchText}")]
-    public async Task<ActionResult<ServiceResponse<List<Product>>>> SearchProducts(string searchText)
+    [HttpGet("search/{searchText}/{page}")]
+    public async Task<ActionResult<ServiceResponse<ProductSearchResult>>> SearchProducts(string searchText, int page = 1)
     {
-        var response = await _productService.SearchProducts(searchText);
+        var response = await _productService.SearchProducts(searchText, page);
         return Ok(response);
     }
 
@@ -50,6 +51,13 @@ public class ProductController : ControllerBase
     public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int id)
     {
         var response = await _productService.GetProductAsync(id);
+        return Ok(response);
+    }
+
+    [HttpGet("featured")]
+    public async Task<ActionResult<ServiceResponse<List<Product>>>> GetFeaturedProducts()
+    {
+        var response = await _productService.GetFeaturedProducts();
         return Ok(response);
     }
 }
