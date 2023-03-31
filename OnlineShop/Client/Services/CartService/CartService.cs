@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using OnlineShop.Shared;
+using System.Net.Http.Json;
 
 namespace OnlineShop.Client.Services.CartService;
 
@@ -24,6 +25,7 @@ public class CartService : ICartService
         }
         cart.Add(cartItem);
         await _localStorage.SetItemAsync("cart", cart);
+        OnChange.Invoke();
     }
 
     public async Task<List<CartItem>> GetCartItems()
@@ -34,5 +36,49 @@ public class CartService : ICartService
             cart = new List<CartItem>();
         }
         return cart;
+    }
+
+    public async Task<List<CartProductResponse>> GetCartProducts()
+    {
+        var cartItems = await _localStorage.GetItemAsync<List<CartItem>>("cart");
+
+        if (cartItems == null || cartItems.Count == 0)
+        {
+            return null!;
+        }
+        else
+        {
+            var productsCartItems = await _http.PostAsJsonAsync("api/cart/products", cartItems);
+            var cartProducts = await productsCartItems.Content.ReadFromJsonAsync<ServiceResponse<List<CartProductResponse>>>();
+            if (cartProducts != null && cartProducts.Data != null)
+            {
+                return cartProducts.Data;
+            }
+            else
+            {
+                return null!;
+            }
+        }
+
+
+    }
+
+    public async Task RemoveProductFromCart(int productId, int productTypeId)
+    {
+        var cart = await _localStorage.GetItemAsync<List<CartItem>>("cart");
+        if (cart == null)
+        {
+            return;
+        }
+        else
+        {
+            var cartItem = cart.FirstOrDefault(c => c.ProductTypeId == productTypeId && c.ProductId == productId);
+            if (cartItem != null)
+            {
+                cart.Remove(cartItem);
+                await _localStorage.SetItemAsync("cart", cart);
+                OnChange.Invoke();
+            }
+        }
     }
 }
