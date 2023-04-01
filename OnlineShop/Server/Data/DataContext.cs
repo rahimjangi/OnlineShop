@@ -9,6 +9,7 @@ public class DataContext : DbContext
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<ProductVariant> ProductVariants { get; set; } = null!;
     public DbSet<ProductType> ProductTypes { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
