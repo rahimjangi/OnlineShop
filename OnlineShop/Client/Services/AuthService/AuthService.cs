@@ -11,6 +11,15 @@ public class AuthService : IAuthService
     {
         _http = http;
     }
+
+    public async Task<ServiceResponse<string>> Login(UserLogin request)
+    {
+        var result = await _http.PostAsJsonAsync("api/auth/login", request);
+        var response = await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+        return response!;
+
+    }
+
     public async Task<ServiceResponse<int>> Register(UserRegister request)
     {
         var result = await _http.PostAsJsonAsync("api/auth/register", request);

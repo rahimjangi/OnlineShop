@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OnlineShop.Server.Data;
 using OnlineShop.Shared;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace OnlineShop.Server.Services.AuthService;
@@ -8,11 +11,68 @@ namespace OnlineShop.Server.Services.AuthService;
 public class AuthService : IAuthService
 {
     private readonly DataContext _context;
+    private readonly IConfiguration _config;
 
-    public AuthService(DataContext context)
+    public AuthService(DataContext context, IConfiguration config)
     {
         _context = context;
+        _config = config;
     }
+
+    public async Task<ServiceResponse<string>> Login(string email, string password)
+    {
+        //AppSettings
+        var response = new ServiceResponse<string>();
+        var user = await _context.Users.FirstOrDefaultAsync(p => p.Email.ToLower().Equals(email.ToLower()));
+        if (user == null)
+        {
+            response.Success = false;
+            response.Message = "User not found";
+        }
+        else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+        {
+            response.Success = false;
+            response.Message = "User or password is not correct!";
+        }
+        else
+        {
+            response.Data = CreateToken(user);
+        }
+
+
+        return response;
+    }
+
+    private string? CreateToken(User user)
+    {
+        List<Claim> claims = new List<Claim>()
+        {
+            new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
+            new Claim(ClaimTypes.Name,user.Email)
+        };
+        var key =
+            new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
+
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+        var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+        return jwt;
+    }
+
+    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    {
+        using (var hmac = new HMACSHA512(passwordSalt))
+        {
+            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            return computedHash.SequenceEqual(passwordHash);
+        }
+    }
+
     public async Task<ServiceResponse<int>> Register(User user, string password)
     {
         if (await UserExists(user.Email))
@@ -50,7 +110,7 @@ public class AuthService : IAuthService
 
     private void CreatePasswordHash(string password, out byte[] paswordHash, out byte[] passwordSalt)
     {
-        using (var hmac = new HMACSHA256())
+        using (var hmac = new HMACSHA512())
         {
             passwordSalt = hmac.Key;
             paswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));

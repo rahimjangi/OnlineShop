@@ -1,4 +1,9 @@
 ﻿@page "/login"
+@using Microsoft.AspNetCore.WebUtilities;
+@inject IAuthService AuthService
+@inject ILocalStorageService LocalStorageService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
 
@@ -19,13 +24,38 @@
     <button type="submit" class="btn btn-outline-info">Login</button>
 
 </EditForm>
+<div class="text-danger">
+    <span>@errorMessage</span>
+</div>
 
 @code {
     private UserLogin user = new UserLogin();
+    private string errorMessage = string.Empty;
+    private string returnUrl = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl",out var url))
+        {
+            returnUrl = url;
+        }
+    }
 
     private async Task HandleLogin()
     {
-        await Task.Delay(1);
+        var response=await AuthService.Login(user);
+        if (response.Success && response.Data!=null)
+        {
+            string token=response.Data;
+            await LocalStorageService.SetItemAsync<string>("authToken",token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo(returnUrl);
+        }
+        else
+        {
+            errorMessage = response.Message;
+        }
     }
 
 }
