@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Shared;
+using System.Security.Claims;
 
 namespace OnlineShop.Server.Controllers;
 
@@ -38,6 +40,21 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<ServiceResponse<string>>> Login(UserLogin user)
     {
         var response = await _authService.Login(user.Email, user.Password);
+        if (response.Success)
+        {
+            return Ok(response);
+        }
+        else
+        {
+            return BadRequest(response);
+        }
+    }
+
+    [HttpPost("change-password"), Authorize]
+    public async Task<ActionResult<ServiceResponse<bool>>> ChangePassword([FromBody] string newPassword)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var response = await _authService.ChangePassword(Convert.ToInt32(userId), newPassword);
         if (response.Success)
         {
             return Ok(response);

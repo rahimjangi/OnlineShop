@@ -12,6 +12,8 @@
     <div class="dropdown-menu dropdown-menu-right @UserMenuCssClass">
         <AuthorizeView>
             <Authorized>
+                <a href="profile" class="dropdown-item">Profile</a>
+                <hr />
                 <button @onclick="Logout" class="dropdown-item">Logout</button>
             </Authorized>
             <NotAuthorized>
