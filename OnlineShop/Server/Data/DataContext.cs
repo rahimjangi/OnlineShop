@@ -10,6 +10,7 @@ public class DataContext : DbContext
     public DbSet<ProductVariant> ProductVariants { get; set; } = null!;
     public DbSet<ProductType> ProductTypes { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<CartItem> CartItems { get; set; } = null!;
 
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
@@ -18,7 +19,11 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ProductVariant>().HasKey(x => new { x.ProductId, x.ProductTypeId });
+        modelBuilder.Entity<CartItem>()
+            .HasKey(x => new { x.UserId, x.ProductId, x.ProductTypeId });
+
+        modelBuilder.Entity<ProductVariant>()
+            .HasKey(x => new { x.ProductId, x.ProductTypeId });
 
         modelBuilder.Entity<Category>()
             .HasData(

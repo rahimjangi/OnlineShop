@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OnlineShop.Server.Services.CartService;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Shared;
 
 namespace OnlineShop.Server.Controllers;
@@ -21,4 +21,18 @@ public class CartController : ControllerBase
         var result = await _cartService.GetCartProducts(cartItems);
         return Ok(result);
     }
+
+    [HttpPost, Authorize]
+    public async Task<ActionResult<ServiceResponse<List<CartProductResponse>>>> StoreCartItems(List<CartItem> cartItems)
+    {
+        var result = await _cartService.StoreCartItems(cartItems);
+        return Ok(result);
+    }
+
+    [HttpGet("count")]
+    public async Task<ActionResult<ServiceResponse<int>>> GetCartItemsCount()
+    {
+        return Ok(await _cartService.GetCartItemsCount());
+    }
+
 }

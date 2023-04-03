@@ -1,6 +1,6 @@
 ﻿@page "/cart"
 @inject ICartService CartService
-@attribute [Authorize]
+@*@attribute [Authorize]*@
 
 <PageTitle>Shopping Cart</PageTitle>
 
@@ -29,6 +29,7 @@ else
                 </div>
                 <div class="cart-product-price">$@(product.Price * product.Quantity)</div>
             </div>
+            <hr />
         }
         <div class="cart-product-class"> 
             Total (@cartProducts.Count): $@cartProducts.Sum(product=>product.Price * product.Quantity)
